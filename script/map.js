@@ -15,12 +15,10 @@ const distanceText = document.getElementById("distance");
 
 map.on("click", function (e) {
   const point = e.latlng;
-
   points.push(point);
 
   const marker = L.marker(point).addTo(map);
   markers.push(marker);
-
   drawRoute();
 });
 
