@@ -4,70 +4,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sjöräddning - Strömberäkning</title>
+  <title>SeaVector</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
   <script src="script/main.js"></script>
   <script src="script/weatherdata.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="script/AIS.js" type="module"></script>
 </head>
 
 <body>
   <main class="container">
-    <h1>Strömberäkning</h1>
-    <p>Beräkna fart, distans eller tid i nautiska mil.</p>
-    <a href="html/map.html">Gå direkt till distansverktyget</a>
+    <h1>Welcome to SeaVector</h1>
+    <p>Calculate maritime distances, speeds and times.</p>
+    <button class="buttons"><a href="html/map.html">Distance Tool</a></button>
 
     <section class="card">
-      <label>Distans, nautiska mil</label>
+      <h2>Other boats nearby</h2>
+      <div id="aisMap"></div>
+    </section>
+
+    <section class="card">
+      <h1>Streamcalculation</h1>
+      <p>Calculate maritime distances, speeds and times.</p>
+      <label>Distance, nautical miles</label>
       <input id="distance" type="number" step="0.01" placeholder="Ex. 2.5" />
 
-      <label>Tid, timmar</label>
+      <label>Time, hours</label>
       <input id="time" type="number" step="0.01" placeholder="Ex. 1.5" />
 
-      <label>Fart, knop</label>
+      <label>Speed, knots</label>
       <input id="speed" type="number" step="0.01" placeholder="Ex. 1.7" />
 
       <div class="buttons">
-        <button onclick="calculateSpeed()">Beräkna fart</button>
-        <button onclick="calculateDistance()">Beräkna distans</button>
-        <button onclick="calculateTime()">Beräkna tid</button>
-        <button class="secondary" onclick="clearFields()">Rensa</button>
+        <button onclick="calculateSpeed()">Calculate Speed</button>
+        <button onclick="calculateDistance()">Calculate Distance</button>
+        <button onclick="calculateTime()">Calculate Time</button>
+        <button class="secondary" onclick="clearFields()">Clear</button>
       </div>
 
       <p id="result" class="result"></p>
     </section>
 
     <section class="card">
-      <h2>Distans mellan två positioner</h2>
+      <h2>Distance between two positions</h2>
 
-      <label>Latitud punkt 1</label>
+      <label>Latitude point 1</label>
       <input id="lat1" type="number" step="0.000001" placeholder="Ex. 57.6348" />
 
-      <label>Longitud punkt 1</label>
+      <label>Longitude point 1</label>
       <input id="lon1" type="number" step="0.000001" placeholder="Ex. 18.2948" />
 
-      <label>Latitud punkt 2</label>
+      <label>Latitude point 2</label>
       <input id="lat2" type="number" step="0.000001" placeholder="Ex. 57.6400" />
 
-      <label>Longitud punkt 2</label>
+      <label>Longitude point 2</label>
       <input id="lon2" type="number" step="0.000001" placeholder="Ex. 18.3100" />
 
-      <button onclick="calculateNauticalDistance()">Beräkna nautisk distans</button>
+      <button onclick="calculateNauticalDistance()">Calculate nautical distance</button>
 
       <p id="mapResult" class="result"></p>
     </section>
 
     <section class="card">
-      <h2>Väder och sjö</h2>
+      <h2>Weather and sea</h2>
 
-      <input id="weatherLat" type="text" value="57.6348" placeholder="Latitud">
-      <input id="weatherLon" type="text" value="18.2948" placeholder="Longitud">
+      <input id="weatherLat" type="text" value="57.6348" placeholder="Latitude">
+      <input id="weatherLon" type="text" value="18.2948" placeholder="Longitude">
 
-      <button id="getPositionBtn">Hämta min position</button>
-      <button id="loadWeatherBtn">Hämta väder</button>
+      <button id="getPositionBtn">Get my position</button>
 
-      <p id="positionStatus">Ingen position hämtad.</p>
 
-      <h3>Väder</h3>
+      <p id="positionStatus">No position fetched.</p>
+
+      <h3>Weather</h3>
       <p id="weatherResult">Ingen prognos hämtad.</p>
 
       <h3>Våghöjd</h3>

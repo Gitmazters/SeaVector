@@ -81,7 +81,7 @@ async function loadSmhiWeather(lat, lon) {
     const forecast = data.timeSeries[0];
 
     weatherResult.innerHTML = `
-      Prognostid: <b>${forecast.time}</b><br>
+      Prognostid: <b>${new Date(forecast.time).toLocaleTimeString()}</b><br>
       Temperatur: <b>${forecast.data.air_temperature ?? "saknas"} °C</b><br>
       Vind: <b>${forecast.data.wind_speed ?? "saknas"} m/s</b><br>
       Vindriktning: <b>${forecast.data.wind_direction ?? "saknas"}°</b><br>
