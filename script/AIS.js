@@ -74,17 +74,6 @@ socket.addEventListener("message", async (event) => {
 
   const safeCourse = Number(course) || 0;
 
-  function getCourseEndPoint(lat, lon, courseDegrees) {
-    const distanceNm = 0.5;
-    const distanceDeg = distanceNm / 60;
-    const radians = courseDegrees * Math.PI / 180;
-
-    const endLat = lat + distanceDeg * Math.cos(radians);
-    const endLon = lon + distanceDeg * Math.sin(radians) / Math.cos(lat * Math.PI / 180);
-
-    return [endLat, endLon];
-  }
-
   const courseEndPoint = getCourseEndPoint(latitude, longitude, safeCourse);
 
   if (vesselMarkers[mmsi]) {
@@ -107,7 +96,8 @@ socket.addEventListener("message", async (event) => {
   } else {
     vesselMarkers[mmsi] = {
       marker: L.marker([latitude, longitude], {
-        icon: boatIcon
+        icon: boatIcon,
+        iconAnchor: [0, 200],
       })
         .addTo(aisMap)
         .bindPopup(popupContent),
@@ -124,7 +114,7 @@ socket.addEventListener("message", async (event) => {
         [latitude, longitude],
         courseEndPoint
       ], {
-        color: "darkblue",
+        color: "green",
         weight: 3,
         opacity: 0.9
       }).addTo(aisMap)
@@ -140,12 +130,14 @@ socket.addEventListener("close", function () {
   console.log("AIS-anslutningen stängdes");
 });
 
-function calculateCoursePoint(lat, lon, course, distanceNm) {
-  const distanceDeg = distanceNm / 60;
-  const angle = course * Math.PI / 180;
+//ritar linjen ifrån båtarna
+function getCourseEndPoint(lat, lon, courseDegrees) {
+    const distanceNm = 2; // 2 nautiska mil
+    const distanceDeg = distanceNm / 60;
+    const radians = courseDegrees * Math.PI / 180;
 
-  const newLat = lat + distanceDeg * Math.cos(angle);
-  const newLon = lon + distanceDeg * Math.sin(angle) / Math.cos(lat * Math.PI / 180);
+    const endLat = lat + distanceDeg * Math.cos(radians);
+    const endLon = lon + distanceDeg * Math.sin(radians) / Math.cos(lat * Math.PI / 180);
 
-  return [newLat, newLon];
-}
+    return [endLat, endLon];
+  }
