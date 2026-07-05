@@ -132,12 +132,12 @@ socket.addEventListener("close", function () {
 
 //ritar linjen ifrån båtarna
 function getCourseEndPoint(lat, lon, courseDegrees) {
-    const distanceNm = 2; // 2 nautiska mil
-    const distanceDeg = distanceNm / 60;
-    const radians = courseDegrees * Math.PI / 180;
+  const distanceNm = 1; // 2 nautiska mil
+  const distanceDeg = distanceNm / 60;
+  const radians = courseDegrees * Math.PI / 180;
 
-    const endLat = lat + distanceDeg * Math.cos(radians);
-    const endLon = lon + distanceDeg * Math.sin(radians) / Math.cos(lat * Math.PI / 180);
+  const endLat = lat + distanceDeg * Math.cos(radians);
+  const endLon = lon + distanceDeg * Math.sin(radians) / Math.cos(lat * Math.PI / 180);
 
-    return [endLat, endLon];
-  }
+  return [endLat, endLon];
+}
