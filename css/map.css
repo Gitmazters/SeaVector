@@ -24,6 +24,16 @@ button {
   cursor: pointer;
 }
 
+.toPDF {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  background: darkred;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
 ::placeholder {
   color: white;
 }
