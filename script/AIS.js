@@ -12,9 +12,9 @@ const vesselMarkers = {};
 
 const boatIcon = L.icon({
   iconUrl: "images/pinkBoat.png",
-  iconSize: [40, 40],
+  iconSize: [30, 30],
   iconAnchor: [20, 20],
-  popupAnchor: [0, -20]
+  popupAnchor: [0, -15]
 });
 
 // Anslutning till AISstream

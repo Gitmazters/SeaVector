@@ -74,7 +74,7 @@ function clearRoute() {
     map.removeLayer(routeLine);
     routeLine = null;
   }
-  distanceText.textContent = "Distans: 0 NM";
+  distanceText.textContent = "Distance: 0 NM";
 }
 
 const printRouteBtn = document.getElementById("printRouteBtn");
