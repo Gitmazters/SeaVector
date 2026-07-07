@@ -13,7 +13,7 @@ const vesselMarkers = {};
 const boatIcon = L.icon({
   iconUrl: "images/pinkBoat.png",
   iconSize: [30, 30],
-  iconAnchor: [20, 20],
+  iconAnchor: [15, 15],
   popupAnchor: [0, -15]
 });
 
