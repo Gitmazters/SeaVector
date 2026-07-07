@@ -102,7 +102,7 @@ socket.addEventListener("message", async (event) => {
       trackPoints: [[latitude, longitude]],
 
       trackLine: L.polyline([[latitude, longitude]], {
-        color: "orange",
+        color: "magenta",
         weight: 2,
         opacity: 0.7
       }).addTo(aisMap),
