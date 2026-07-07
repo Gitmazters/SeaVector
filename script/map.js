@@ -9,7 +9,6 @@ let points = [];
 let markers = [];
 let routeLine = null;
 
-const zoomBtn = document.getElementById("zoomBtn");
 const clearBtn = document.getElementById("clearBtn");
 const distanceText = document.getElementById("distance");
 
@@ -22,7 +21,6 @@ map.on("click", function (e) {
   drawRoute();
 });
 
-zoomBtn.addEventListener("click", zoomToPosition);
 clearBtn.addEventListener("click", clearRoute);
 
 function drawRoute() {
@@ -31,7 +29,7 @@ function drawRoute() {
   }
 
   routeLine = L.polyline(points, {
-    color: "blue",
+    color: "magenta",
     weight: 4
   }).addTo(map);
 
@@ -43,7 +41,7 @@ function drawRoute() {
 
   const nauticalMiles = totalMeters / 1852;
 
-  distanceText.textContent = "Distans: " + nauticalMiles.toFixed(2) + " NM";
+  distanceText.textContent = "Distance: " + nauticalMiles.toFixed(2) + " NM";
 }
 
 function zoomToPosition() {
