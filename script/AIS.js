@@ -11,9 +11,9 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 const vesselMarkers = {};
 
 const boatIcon = L.icon({
-  iconUrl: "images/boat.png",
-  iconSize: [30, 30],
-  iconAnchor: [20, 20], // mitten på bilden
+  iconUrl: "images/pinkBoat.png",
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
   popupAnchor: [0, -20]
 });
 
@@ -66,11 +66,9 @@ socket.addEventListener("message", async (event) => {
   const popupContent = `
    <strong>Name:</strong> ${shipName}<br>
     <strong>MMSI:</strong> ${mmsi}<br>
-    <strong>Fart:</strong> ${speed} knop<br>
-    <strong>Kurs:</strong> ${course}°
+    <strong>Speed:</strong> ${speed} knots<br>
+    <strong>Course:</strong> ${course}°
   `;
-
-
 
   const safeCourse = Number(course) || 0;
 
@@ -97,7 +95,6 @@ socket.addEventListener("message", async (event) => {
     vesselMarkers[mmsi] = {
       marker: L.marker([latitude, longitude], {
         icon: boatIcon,
-        iconAnchor: [0, 200],
       })
         .addTo(aisMap)
         .bindPopup(popupContent),
@@ -114,7 +111,7 @@ socket.addEventListener("message", async (event) => {
         [latitude, longitude],
         courseEndPoint
       ], {
-        color: "green",
+        color: "pink",
         weight: 3,
         opacity: 0.9
       }).addTo(aisMap)
