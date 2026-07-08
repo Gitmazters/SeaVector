@@ -195,3 +195,4 @@ function createArrowIcon(courseDegrees) {
     iconAnchor: [12, 12]
   });
 }
+

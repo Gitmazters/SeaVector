@@ -21,7 +21,7 @@
       <p>Calculate maritime distances, speeds and times.</p>
       <button class="buttons"><a href="html/map.html">Distance Tool</a></button>
     </section>
-    
+
     <section class="card">
       <h2>Other boats nearby</h2>
       <div id="aisMap"></div>
@@ -71,15 +71,29 @@
 
     <section class="card">
       <h2>Weather and sea</h2>
-
       <input id="weatherLat" type="text" value="57.6348" placeholder="Latitude">
       <input id="weatherLon" type="text" value="18.2948" placeholder="Longitude"><br>
-
       <button id="getPositionBtn">Get my position</button>
       <p id="positionStatus">No position fetched.</p>
-
       <h3>Weather</h3>
       <p id="weatherResult">Ingen prognos hämtad.</p>
+    </section>
+
+    <section class="card">
+      <h2>Current calculation</h2>
+      <p>Start the timer and fetch your position. Stop the timer to fetch a new position and calculate drift/current.
+      </p>
+
+      <div class="buttons">
+        <button onclick="startCurrentMeasurement()">Start current measurement</button>
+        <button onclick="stopCurrentMeasurement()">Stop current measurement</button>
+        <button class="secondary" onclick="resetCurrentMeasurement()">Reset</button>
+      </div>
+      <p><strong>Timer:</strong> <span id="currentTimer">00:00:00</span></p>
+      <p><strong>Start position:</strong> <span id="currentStartPosition">Not fetched.</span></p>
+      <p><strong>End position:</strong> <span id="currentEndPosition">Not fetched.</span></p>
+
+      <p id="currentResult" class="result"></p>
     </section>
 
   </main>

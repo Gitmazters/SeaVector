@@ -94,3 +94,173 @@ function haversineNauticalMiles(lat1, lon1, lat2, lon2) {
   return earthRadiusNm * c;
 }
 
+let currentStartTime = null;
+let currentEndTime = null;
+let currentStartPosition = null;
+let currentEndPosition = null;
+let currentTimerInterval = null;
+
+function startCurrentMeasurement() {
+  navigator.geolocation.getCurrentPosition(
+    function (position) {
+      currentStartPosition = {
+        lat: position.coords.latitude,
+        lon: position.coords.longitude
+      };
+
+      currentStartTime = new Date();
+      currentEndTime = null;
+      currentEndPosition = null;
+
+      document.getElementById("currentStartPosition").textContent =
+        `${currentStartPosition.lat.toFixed(6)}, ${currentStartPosition.lon.toFixed(6)}`;
+
+      document.getElementById("currentEndPosition").textContent = "Not fetched.";
+      document.getElementById("currentResult").textContent = "";
+
+      if (currentTimerInterval) {
+        clearInterval(currentTimerInterval);
+      }
+
+      currentTimerInterval = setInterval(updateCurrentTimer, 1000);
+      updateCurrentTimer();
+    },
+    function () {
+      alert("Could not fetch your position.");
+    },
+    {
+      enableHighAccuracy: true
+    }
+  );
+}
+
+function stopCurrentMeasurement() {
+  if (!currentStartTime || !currentStartPosition) {
+    alert("Start the measurement first.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    function (position) {
+      currentEndPosition = {
+        lat: position.coords.latitude,
+        lon: position.coords.longitude
+      };
+
+      currentEndTime = new Date();
+
+      if (currentTimerInterval) {
+        clearInterval(currentTimerInterval);
+      }
+
+      document.getElementById("currentEndPosition").textContent =
+        `${currentEndPosition.lat.toFixed(6)}, ${currentEndPosition.lon.toFixed(6)}`;
+
+      calculateCurrentFromTimer();
+    },
+    function () {
+      alert("Could not fetch your position.");
+    },
+    {
+      enableHighAccuracy: true
+    }
+  );
+}
+
+function resetCurrentMeasurement() {
+  currentStartTime = null;
+  currentEndTime = null;
+  currentStartPosition = null;
+  currentEndPosition = null;
+
+  if (currentTimerInterval) {
+    clearInterval(currentTimerInterval);
+  }
+
+  document.getElementById("currentTimer").textContent = "00:00:00";
+  document.getElementById("currentStartPosition").textContent = "Not fetched.";
+  document.getElementById("currentEndPosition").textContent = "Not fetched.";
+  document.getElementById("currentResult").textContent = "";
+}
+
+function updateCurrentTimer() {
+  if (!currentStartTime) {
+    return;
+  }
+
+  const now = new Date();
+  const elapsedSeconds = Math.floor((now - currentStartTime) / 1000);
+
+  const hours = Math.floor(elapsedSeconds / 3600);
+  const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+  const seconds = elapsedSeconds % 60;
+
+  document.getElementById("currentTimer").textContent =
+    `${String(hours).padStart(2, "0")}:` +
+    `${String(minutes).padStart(2, "0")}:` +
+    `${String(seconds).padStart(2, "0")}`;
+}
+
+function calculateCurrentFromTimer() {
+  const result = document.getElementById("currentResult");
+
+  const timeHours = (currentEndTime - currentStartTime) / 1000 / 60 / 60;
+
+  const distanceNm = calculateCurrentDistanceNm(
+    currentStartPosition.lat,
+    currentStartPosition.lon,
+    currentEndPosition.lat,
+    currentEndPosition.lon
+  );
+
+  const currentKnots = distanceNm / timeHours;
+
+  const direction = calculateCurrentDirection(
+    currentStartPosition.lat,
+    currentStartPosition.lon,
+    currentEndPosition.lat,
+    currentEndPosition.lon
+  );
+
+  result.innerHTML = `
+    Distance: ${distanceNm.toFixed(3)} NM<br>
+    Time: ${timeHours.toFixed(3)} hours<br>
+    Current/drift speed: ${currentKnots.toFixed(2)} knots<br>
+    Direction: ${direction.toFixed(0)}°
+  `;
+}
+
+function calculateCurrentDistanceNm(lat1, lon1, lat2, lon2) {
+  const earthRadiusNm = 3440.065;
+
+  const lat1Rad = lat1 * Math.PI / 180;
+  const lat2Rad = lat2 * Math.PI / 180;
+  const deltaLat = (lat2 - lat1) * Math.PI / 180;
+  const deltaLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    Math.cos(lat1Rad) *
+    Math.cos(lat2Rad) *
+    Math.sin(deltaLon / 2) *
+    Math.sin(deltaLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return earthRadiusNm * c;
+}
+
+function calculateCurrentDirection(lat1, lon1, lat2, lon2) {
+  const lat1Rad = lat1 * Math.PI / 180;
+  const lat2Rad = lat2 * Math.PI / 180;
+  const deltaLon = (lon2 - lon1) * Math.PI / 180;
+
+  const y = Math.sin(deltaLon) * Math.cos(lat2Rad);
+  const x =
+    Math.cos(lat1Rad) * Math.sin(lat2Rad) -
+    Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLon);
+
+  const bearing = Math.atan2(y, x) * 180 / Math.PI;
+
+  return (bearing + 360) % 360;
+}
