@@ -141,9 +141,9 @@ async function handleAISMessage(event) {
       .addTo(vesselLayer);
 
     const trackLine = L.polyline([[latitude, longitude]], {
-      color: "#4db8ff",
-      weight: 5,
-      opacity: 0.45,
+      color: "#328ecc",
+      weight: 18,
+      opacity: 0.2,
       dashArray: "2, 10",
       lineCap: "round"
     }).addTo(vesselLayer);
@@ -153,7 +153,7 @@ async function handleAISMessage(event) {
       courseEndPoint
     ], {
       color: "blue",
-      weight: 3,
+      weight: 2,
       opacity: 0.9
     }).addTo(vesselLayer);
 
