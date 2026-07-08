@@ -105,7 +105,8 @@ function startCurrentMeasurement() {
     function (position) {
       currentStartPosition = {
         lat: position.coords.latitude,
-        lon: position.coords.longitude
+        lon: position.coords.longitude,
+        accuracy: position.coords.accuracy
       };
 
       currentStartTime = new Date();
@@ -113,7 +114,9 @@ function startCurrentMeasurement() {
       currentEndPosition = null;
 
       document.getElementById("currentStartPosition").textContent =
-        `${currentStartPosition.lat.toFixed(6)}, ${currentStartPosition.lon.toFixed(6)}`;
+        `${currentStartPosition.lat.toFixed(6)}, ${currentStartPosition.lon.toFixed(6)}
+  Accuracy: ±${currentStartPosition.accuracy.toFixed(0)} m`;
+
 
       document.getElementById("currentEndPosition").textContent = "Not fetched.";
       document.getElementById("currentResult").textContent = "";
@@ -144,7 +147,8 @@ function stopCurrentMeasurement() {
     function (position) {
       currentEndPosition = {
         lat: position.coords.latitude,
-        lon: position.coords.longitude
+        lon: position.coords.longitude,
+        accuracy: position.coords.accuracy
       };
 
       currentEndTime = new Date();
@@ -154,7 +158,8 @@ function stopCurrentMeasurement() {
       }
 
       document.getElementById("currentEndPosition").textContent =
-        `${currentEndPosition.lat.toFixed(6)}, ${currentEndPosition.lon.toFixed(6)}`;
+        `${currentEndPosition.lat.toFixed(6)}, ${currentEndPosition.lon.toFixed(6)}
+  Accuracy: ±${currentEndPosition.accuracy.toFixed(0)} m`;
 
       calculateCurrentFromTimer();
     },
@@ -212,6 +217,20 @@ function calculateCurrentFromTimer() {
     currentEndPosition.lat,
     currentEndPosition.lon
   );
+
+  const distanceMeters = distanceNm * 1852;
+  const maxError =
+    currentStartPosition.accuracy + currentEndPosition.accuracy;
+
+  if (distanceMeters < maxError) {
+    result.innerHTML = `
+    Distance: ${distanceNm.toFixed(3)} NM<br>
+    Distance in meters: ${distanceMeters.toFixed(1)} m<br>
+    GPS accuracy: ±${maxError.toFixed(0)} m<br><br>
+    Movement is within GPS error margin. Current/drift cannot be calculated reliably.
+  `;
+    return;
+  }
 
   const currentKnots = distanceNm / timeHours;
 
