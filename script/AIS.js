@@ -15,10 +15,10 @@ let vesselMarkers = {};
 let vesselLayer = L.layerGroup().addTo(aisMap);
 
 const boatIcon = L.icon({
-  iconUrl: "images/pinkBoat.png",
-  iconSize: [40, 40],
-  iconAnchor: [20, 20],
-  popupAnchor: [0, -20]
+  iconUrl: "images/arrow.png",
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+  popupAnchor: [0, -10]
 });
 
 let socket = null;
@@ -38,7 +38,6 @@ function connectAIS() {
   }
 
   const bounds = aisMap.getBounds();
-
   const south = bounds.getSouth();
   const west = bounds.getWest();
   const north = bounds.getNorth();
@@ -96,7 +95,6 @@ async function handleAISMessage(event) {
   }
 
   const positionReport = aisData.Message.PositionReport;
-
   const mmsi = positionReport.UserID;
   const latitude = positionReport.Latitude;
   const longitude = positionReport.Longitude;
@@ -111,8 +109,8 @@ async function handleAISMessage(event) {
   const popupContent = `
     <strong>Name:</strong> ${shipName}<br>
     <strong>MMSI:</strong> ${mmsi}<br>
-    <strong>Speed:</strong> ${speed} knots<br>
-    <strong>Course:</strong> ${course}°
+    <strong>Course:</strong> ${course}°<br>
+    <strong>Speed:</strong> ${speed} knots
   `;
 
   const safeCourse = Number(course) || 0;
@@ -128,31 +126,33 @@ async function handleAISMessage(event) {
     if (vesselMarkers[mmsi].trackPoints.length > 20) {
       vesselMarkers[mmsi].trackPoints.shift();
     }
-
     vesselMarkers[mmsi].trackLine.setLatLngs(vesselMarkers[mmsi].trackPoints);
-
     vesselMarkers[mmsi].courseLine.setLatLngs([
       [latitude, longitude],
       courseEndPoint
     ]);
   } else {
     const marker = L.marker([latitude, longitude], {
-      icon: boatIcon
+      icon: boatIcon,
+      rotationAngle: safeCourse,
+      rotationOrigin: "center center"
     })
       .bindPopup(popupContent)
       .addTo(vesselLayer);
 
     const trackLine = L.polyline([[latitude, longitude]], {
-      color: "magenta",
-      weight: 2,
-      opacity: 0.7
+      color: "#4db8ff",
+      weight: 5,
+      opacity: 0.45,
+      dashArray: "2, 10",
+      lineCap: "round"
     }).addTo(vesselLayer);
 
     const courseLine = L.polyline([
       [latitude, longitude],
       courseEndPoint
     ], {
-      color: "pink",
+      color: "blue",
       weight: 3,
       opacity: 0.9
     }).addTo(vesselLayer);
@@ -161,7 +161,7 @@ async function handleAISMessage(event) {
       marker: marker,
       trackPoints: [[latitude, longitude]],
       trackLine: trackLine,
-      courseLine: courseLine
+      courseLine: courseLine,
     };
   }
 }
@@ -178,4 +178,20 @@ function getCourseEndPoint(lat, lon, courseDegrees) {
     distanceDeg * Math.sin(radians) / Math.cos(lat * Math.PI / 180);
 
   return [endLat, endLon];
+}
+
+
+
+function createArrowIcon(courseDegrees) {
+  return L.divIcon({
+    className: "course-arrow-icon",
+    html: `<div style="
+      transform: rotate(${courseDegrees}deg);
+      color: blue;
+      font-size: 24px;
+      line-height: 24px;
+    ">▲</div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
+  });
 }
