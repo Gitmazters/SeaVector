@@ -1,5 +1,5 @@
 // Skapar kartan och kopplar den till div-taggen med id="aisMap"
-// Startar kartan i Stockholm
+// Startar kartan över Stockholm
 const aisMap = L.map("aisMap").setView([59.3293, 18.0686], 10);
 
 // Lägger till kartlager från OpenStreetMap
@@ -9,10 +9,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(aisMap);
 
 // Här sparas båtarna så att samma båt uppdateras istället för att ritas ut flera gånger
-let vesselMarkers = {};
-
-// Lagergrupp för båtar, spår och kurslinjer
-let vesselLayer = L.layerGroup().addTo(aisMap);
+const vesselMarkers = {};
 
 const boatIcon = L.icon({
   iconUrl: "images/pinkBoat.png",
@@ -21,34 +18,21 @@ const boatIcon = L.icon({
   popupAnchor: [0, -20]
 });
 
-let socket = null;
+// Här sparas WebSocket-anslutningen
+let socket;
 
-// Starta AIS när sidan laddas
+// Startar AIS-anslutningen
 connectAIS();
 
-// Uppdatera AIS-området när användaren zoomar eller flyttar kartan
+// När användaren flyttar eller zoomar kartan hämtas AIS-data för det nya området
 aisMap.on("moveend", function () {
   connectAIS();
 });
 
 function connectAIS() {
-  // Stäng tidigare AIS-anslutning
   if (socket) {
     socket.close();
   }
-
-  const bounds = aisMap.getBounds();
-
-  const south = bounds.getSouth();
-  const west = bounds.getWest();
-  const north = bounds.getNorth();
-  const east = bounds.getEast();
-
-  console.log("Ny AIS-ruta:");
-  console.log("Syd:", south);
-  console.log("Väst:", west);
-  console.log("Nord:", north);
-  console.log("Öst:", east);
 
   socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
   socket.binaryType = "blob";
@@ -56,22 +40,21 @@ function connectAIS() {
   socket.addEventListener("open", function () {
     console.log("Ansluten till AISstream");
 
+    const bounds = aisMap.getBounds();
+
     const subscriptionMessage = {
       APIKey: "ca6c25fcdf234d9df108f8f2ab4c060e883f2b74",
 
-      // Hämtar AIS-data för området som syns på kartan just nu
+      // Området som syns på kartan just nu
       BoundingBoxes: [
         [
-          [south, west],
-          [north, east]
+          [bounds.getSouth(), bounds.getWest()],
+          [bounds.getNorth(), bounds.getEast()]
         ]
       ],
 
       FilterMessageTypes: ["PositionReport"]
     };
-
-    console.log("Skickar AIS-prenumeration:");
-    console.log(subscriptionMessage);
 
     socket.send(JSON.stringify(subscriptionMessage));
   });
@@ -91,18 +74,19 @@ async function handleAISMessage(event) {
   const text = await event.data.text();
   const aisData = JSON.parse(text);
 
+  console.log(aisData);
+
   if (!aisData.Message || !aisData.Message.PositionReport) {
     return;
   }
 
   const positionReport = aisData.Message.PositionReport;
-
   const mmsi = positionReport.UserID;
   const latitude = positionReport.Latitude;
   const longitude = positionReport.Longitude;
   const speed = positionReport.Sog;
   const course = positionReport.Cog;
-  const shipName = aisData.MetaData?.ShipName || "Unknown";
+  const shipName = aisData.MetaData.ShipName;
 
   if (latitude === undefined || longitude === undefined) {
     return;
@@ -116,6 +100,7 @@ async function handleAISMessage(event) {
   `;
 
   const safeCourse = Number(course) || 0;
+
   const courseEndPoint = getCourseEndPoint(latitude, longitude, safeCourse);
 
   if (vesselMarkers[mmsi]) {
@@ -136,39 +121,36 @@ async function handleAISMessage(event) {
       courseEndPoint
     ]);
   } else {
-    const marker = L.marker([latitude, longitude], {
-      icon: boatIcon
-    })
-      .bindPopup(popupContent)
-      .addTo(vesselLayer);
-
-    const trackLine = L.polyline([[latitude, longitude]], {
-      color: "magenta",
-      weight: 2,
-      opacity: 0.7
-    }).addTo(vesselLayer);
-
-    const courseLine = L.polyline([
-      [latitude, longitude],
-      courseEndPoint
-    ], {
-      color: "pink",
-      weight: 3,
-      opacity: 0.9
-    }).addTo(vesselLayer);
-
     vesselMarkers[mmsi] = {
-      marker: marker,
+      marker: L.marker([latitude, longitude], {
+        icon: boatIcon
+      })
+        .addTo(aisMap)
+        .bindPopup(popupContent),
+
       trackPoints: [[latitude, longitude]],
-      trackLine: trackLine,
-      courseLine: courseLine
+
+      trackLine: L.polyline([[latitude, longitude]], {
+        color: "magenta",
+        weight: 2,
+        opacity: 0.7
+      }).addTo(aisMap),
+
+      courseLine: L.polyline([
+        [latitude, longitude],
+        courseEndPoint
+      ], {
+        color: "pink",
+        weight: 3,
+        opacity: 0.9
+      }).addTo(aisMap)
     };
   }
 }
 
 // Ritar linjen ifrån båtarna
 function getCourseEndPoint(lat, lon, courseDegrees) {
-  const distanceNm = 1;
+  const distanceNm = 1; // 1 nautisk mil
   const distanceDeg = distanceNm / 60;
   const radians = courseDegrees * Math.PI / 180;
 

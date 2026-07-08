@@ -124,7 +124,6 @@ button:hover {
   }
 
   .buttons button:not(:first-child) {
-
     margin-top: 0px;
   }
 }
