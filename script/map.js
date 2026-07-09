@@ -1,9 +1,33 @@
 const map = L.map("map").setView([57.6348, 18.2948], 10);
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+const osmLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: "© OpenStreetMap"
 }).addTo(map);
+
+const seaMapLayer = L.tileLayer("https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png", {
+  maxZoom: 18,
+  attribution: "© OpenSeaMap"
+}).addTo(map);
+
+const depthLayer = L.tileLayer.wms("https://depth.openseamap.org/cgi-bin/mapserv.fcgi", {
+  layers: "contour,contour2",
+  format: "image/png",
+  transparent: true,
+  version: "1.1.1",
+  attribution: "Depth contours © OpenSeaMap"
+}).addTo(map);
+
+const baseMaps = {
+  "OpenStreetMap": osmLayer
+};
+
+const overlayMaps = {
+  "Sjömärken": seaMapLayer,
+  "Djupkurvor": depthLayer
+};
+
+L.control.layers(baseMaps, overlayMaps).addTo(map);
 
 let points = [];
 let markers = [];
